@@ -55,10 +55,12 @@ import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 import reborncore.client.multiblock.component.MultiblockComponent;
+
+import java.util.Random;
 
 public class MultiblockRenderEvent {
 
@@ -82,23 +84,23 @@ public class MultiblockRenderEvent {
 
 	@SubscribeEvent
 	public void onWorldRenderLast(RenderWorldLastEvent event) {
-		Minecraft mc = Minecraft.getMinecraft();
+		Minecraft mc = Minecraft.getInstance();
 		if (mc.player != null && mc.objectMouseOver != null && !mc.player.isSneaking()) {
 			if (currentMultiblock != null) {
 				BlockPos anchorPos = anchor != null ? anchor : mc.objectMouseOver.getBlockPos();
 
 				Multiblock mb = currentMultiblock.getForIndex(0);
 
-				//Render the liquids first, it looks better.
+				//Render the liquids first, it looks better. //TODO 1.13 fluids
+//				for (MultiblockComponent comp : mb.getComponents()) {
+//					if(comp.state.getRenderType() == EnumBlockRenderType.LIQUID){
+//						renderComponent(comp, anchorPos.up(), event.getPartialTicks(), mc.player);
+//					}
+//				}
 				for (MultiblockComponent comp : mb.getComponents()) {
-					if(comp.state.getRenderType() == EnumBlockRenderType.LIQUID){
+				//	if(comp.state.getRenderType() != EnumBlockRenderType.LIQUID){
 						renderComponent(comp, anchorPos.up(), event.getPartialTicks(), mc.player);
-					}
-				}
-				for (MultiblockComponent comp : mb.getComponents()) {
-					if(comp.state.getRenderType() != EnumBlockRenderType.LIQUID){
-						renderComponent(comp, anchorPos.up(), event.getPartialTicks(), mc.player);
-					}
+				//	}
 				}
 
 
@@ -118,7 +120,7 @@ public class MultiblockRenderEvent {
 		if(!camera.isBoundingBoxInFrustum(new AxisAlignedBB(pos))){
 			return;
 		}
-		Minecraft minecraft = Minecraft.getMinecraft();
+		Minecraft minecraft = Minecraft.getInstance();
 		World world = player.world;
 
 		minecraft.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
@@ -126,10 +128,10 @@ public class MultiblockRenderEvent {
 		ForgeHooksClient.setRenderLayer(BlockRenderLayer.CUTOUT);
 
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(-dx, -dy, -dz);
-		GlStateManager.translate(pos.getX(), pos.getY(), pos.getZ());
-		GlStateManager.scale(0.8, 0.8, 0.8);
-		GlStateManager.translate(0.2, 0.2, 0.2);
+		GlStateManager.translated(-dx, -dy, -dz);
+		GlStateManager.translated(pos.getX(), pos.getY(), pos.getZ());
+		GlStateManager.scaled(0.8, 0.8, 0.8);
+		GlStateManager.translated(0.2, 0.2, 0.2);
 
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.enableBlend();
@@ -144,16 +146,17 @@ public class MultiblockRenderEvent {
 	}
 
 	private void renderModel(World world, BlockPos pos,IBlockState state) {
-		final BlockRendererDispatcher blockRendererDispatcher = Minecraft.getMinecraft().blockRenderDispatcher;
+		final BlockRendererDispatcher blockRendererDispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
 		final Tessellator tessellator = Tessellator.getInstance();
 		final BufferBuilder buffer = tessellator.getBuffer();
-		GlStateManager.translate(-pos.getX(), -pos.getY(), -pos.getZ());
+		GlStateManager.translated(-pos.getX(), -pos.getY(), -pos.getZ());
 		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
-		if(state.getRenderType() == EnumBlockRenderType.LIQUID){
-			fluidRenderer.renderFluid(world, state, pos, buffer);
-		} else {
-			blockRendererDispatcher.renderBlock(state, pos, world, buffer);
-		}
+		//TODO 1.13 fluids
+//		if(state.getRenderType() == EnumBlockRenderType.LIQUID){
+//			fluidRenderer.renderFluid(world, state, pos, buffer);
+//		} else {
+			blockRendererDispatcher.renderBlock(state, pos, world, buffer, new Random());
+		//}
 		tessellator.draw();
 	}
 

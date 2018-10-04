@@ -32,6 +32,9 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.common.capabilities.NonNullSupplier;
+import net.minecraftforge.common.capabilities.OptionalCapabilityInstance;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
@@ -52,7 +55,7 @@ public class Inventory<T extends TileMachineBase> extends ItemStackHandler {
 	public Inventory(int size, String invName, int invStackLimit, T tileEntity, IInventoryAccess<T> access) {
 		super(size);
 		name = invName;
-		stackLimit = (invStackLimit == 64 ? Items.AIR.getItemStackLimit() : invStackLimit); //Blame asie for this
+		stackLimit = (invStackLimit == 64 ? Items.AIR.getItemStackLimit(ItemStack.EMPTY) : invStackLimit); //Blame asie for this
 		this.tile = tileEntity;
 		this.inventoryAccess = access;
 		this.externalInventory = new ExternalInventory<>(this);
@@ -105,6 +108,10 @@ public class Inventory<T extends TileMachineBase> extends ItemStackHandler {
 		return externalInventory.withFacing(facing);
 	}
 
+	public OptionalCapabilityInstance<IItemHandler> getExternalHolder(EnumFacing facing){
+		return externalInventory.withFacing(facing).holder;
+	}
+
 	public boolean configuredAccess;
 
 	/**
@@ -129,7 +136,7 @@ public class Inventory<T extends TileMachineBase> extends ItemStackHandler {
 	}
 
 	public void readFromNBT(NBTTagCompound data, String tag) {
-		NBTTagCompound nbttaglist = data.getCompoundTag(tag);
+		NBTTagCompound nbttaglist = data.getCompound(tag);
 		deserializeNBT(nbttaglist);
 		hasChanged = true;
 	}
@@ -185,6 +192,8 @@ public class Inventory<T extends TileMachineBase> extends ItemStackHandler {
 	 * This is used to provide a filtered inv to external machines
 	 */
 	public static class ExternalInventory<T extends TileMachineBase> implements IItemHandler, IItemHandlerModifiable {
+
+		public final OptionalCapabilityInstance<IItemHandler> holder = OptionalCapabilityInstance.of(() -> this);
 
 		Inventory<T> baseInv;
 		private EnumFacing facing = null;

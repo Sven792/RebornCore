@@ -474,7 +474,8 @@ public abstract class MultiblockControllerBase {
 
 		for (IMultiblockPart acquiredPart : partsToAcquire) {
 			// By definition, none of these can be the minimum block.
-			if (acquiredPart.isInvalid()) { continue; }
+			//TODO 1.13 missing forge patches
+			//if (acquiredPart.isInvalid()) { continue; }
 
 			connectedParts.add(acquiredPart);
 			acquiredPart.onAssimilated(this);
@@ -843,7 +844,8 @@ public abstract class MultiblockControllerBase {
 	private void auditParts() {
 		HashSet<IMultiblockPart> deadParts = new HashSet<IMultiblockPart>();
 		for (IMultiblockPart part : connectedParts) {
-			if (part.isInvalid() || worldObj.getTileEntity(part.getPos()) != part) {
+			//TODO 1.13 missing forge patches
+			 /*if (part.isInvalid() || */ if(worldObj.getTileEntity(part.getPos()) != part) {
 				onDetachBlock(part);
 				deadParts.add(part);
 			}
@@ -882,7 +884,8 @@ public abstract class MultiblockControllerBase {
 
 		for (IMultiblockPart part : connectedParts) {
 			pos = part.getWorldLocation();
-			if (!this.worldObj.isBlockLoaded(pos) || part.isInvalid()) {
+			//TODO 1.13 missing forge patches
+			if (!this.worldObj.isBlockLoaded(pos) ){ /* || part.isInvalid()) { */
 				deadParts.add(part);
 				onDetachBlock(part);
 				continue;
@@ -1013,7 +1016,8 @@ public abstract class MultiblockControllerBase {
 
 		for (IMultiblockPart part : connectedParts) {
 			pos = part.getWorldLocation();
-			if (part.isInvalid() || !this.worldObj.isBlockLoaded(pos)) {
+			//TODO 1.13 missing forge patches
+			/* if (part.isInvalid() || */ if ( !this.worldObj.isBlockLoaded(pos)) {
 				// Chunk is unloading, skip this coord to prevent chunk thrashing
 				continue;
 			}

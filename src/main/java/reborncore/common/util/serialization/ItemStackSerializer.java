@@ -29,11 +29,13 @@
 package reborncore.common.util.serialization;
 
 import com.google.gson.*;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import reborncore.common.registration.impl.ItemRegistry;
 
 import java.lang.reflect.Type;
 
@@ -41,7 +43,6 @@ import java.lang.reflect.Type;
 public class ItemStackSerializer implements JsonSerializer<ItemStack>, JsonDeserializer<ItemStack> {
 
 	private static final String NAME = "name";
-	private static final String META_VALUE = "metaValue";
 	private static final String STACK_SIZE = "stackSize";
 	private static final String TAG_COMPOUND = "tagCompound";
 
@@ -53,20 +54,11 @@ public class ItemStackSerializer implements JsonSerializer<ItemStack>, JsonDeser
 			JsonObject jsonObject = json.getAsJsonObject();
 
 			String name = null;
-			int metaValue = 0;
 			int stackSize = 1;
 			NBTTagCompound tagCompound = null;
 
 			if (jsonObject.has(NAME) && jsonObject.get(NAME).isJsonPrimitive()) {
 				name = jsonObject.getAsJsonPrimitive(NAME).getAsString();
-			}
-
-			if (jsonObject.has(META_VALUE) && jsonObject.get(META_VALUE).isJsonPrimitive()) {
-				try {
-					metaValue = jsonObject.getAsJsonPrimitive(META_VALUE).getAsInt();
-				} catch (NumberFormatException e) {
-
-				}
 			}
 
 			if (jsonObject.has(STACK_SIZE) && jsonObject.get(STACK_SIZE).isJsonPrimitive()) {
@@ -76,14 +68,15 @@ public class ItemStackSerializer implements JsonSerializer<ItemStack>, JsonDeser
 			if (jsonObject.has(TAG_COMPOUND) && jsonObject.get(TAG_COMPOUND).isJsonPrimitive()) {
 				try {
 					tagCompound = JsonToNBT.getTagFromJson(jsonObject.getAsJsonPrimitive(TAG_COMPOUND).getAsString());
-				} catch (NBTException e) {
+				} catch (CommandSyntaxException e) {
 
 				}
 			}
 
-			if (name != null && Item.getByNameOrId(name) != null) {
-				ItemStack itemStack = new ItemStack(Item.getByNameOrId(name), stackSize, metaValue);
-				itemStack.setTagCompound(tagCompound);
+			if (name != null && Item.REGISTRY.get(new ResourceLocation(name)) != null) {
+				Item item = Item.REGISTRY.get(new ResourceLocation(name));
+				ItemStack itemStack = new ItemStack(item, stackSize);
+				itemStack.setTag(tagCompound);
 				return itemStack;
 			}
 		}
@@ -97,20 +90,16 @@ public class ItemStackSerializer implements JsonSerializer<ItemStack>, JsonDeser
 		if (src != null && src.getItem() != null) {
 			JsonObject jsonObject = new JsonObject();
 
-			if (Item.REGISTRY.getNameForObject(src.getItem()) != null) {
-				jsonObject.addProperty(NAME, Item.REGISTRY.getNameForObject(src.getItem()).toString());
+			if (Item.REGISTRY.getKey(src.getItem()) != null) {
+				jsonObject.addProperty(NAME, Item.REGISTRY.getKey(src.getItem()).toString());
 			} else {
 				return JsonNull.INSTANCE;
 			}
 
-			if (src.getItemDamage() != 0) {
-				jsonObject.addProperty(META_VALUE, src.getItemDamage());
-			}
-
 			jsonObject.addProperty(STACK_SIZE, src.getCount());
 
-			if (src.getTagCompound() != null) {
-				jsonObject.addProperty(TAG_COMPOUND, src.getTagCompound().toString());
+			if (src.getTag() != null) {
+				jsonObject.addProperty(TAG_COMPOUND, src.getTag().toString());
 			}
 
 			return jsonObject;

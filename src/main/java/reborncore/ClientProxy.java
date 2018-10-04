@@ -33,7 +33,6 @@ import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -74,17 +73,16 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
 	public World getClientWorld() {
-		return Minecraft.getMinecraft().world;
+		return Minecraft.getInstance().world;
 	}
 
 	@Override
 	public EntityPlayer getPlayer() {
-		return Minecraft.getMinecraft().player;
+		return Minecraft.getInstance().player;
 	}
 
 	@Override
 	public void getCrashData(List<String> list) {
 		super.getCrashData(list);
-		list.add("RenderEngine: " + (FMLClientHandler.instance().hasOptifine() ? "1" : "0"));
 	}
 }

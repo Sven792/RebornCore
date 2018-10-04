@@ -28,7 +28,6 @@
 
 package reborncore.common.network;
 
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import java.io.IOException;
 

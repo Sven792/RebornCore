@@ -28,10 +28,10 @@
 
 package reborncore.common.tile;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -88,7 +88,7 @@ public class SlotConfiguration implements INBTSerializable<NBTTagCompound>{
 				}
 			}
 		}
-		if(!machineBase.getWorld().isRemote && machineBase.getWorld().getTotalWorldTime() % machineBase.slotTransferSpeed() == 0){
+		if(!machineBase.getWorld().isRemote && machineBase.getWorld().getGameTime() % machineBase.slotTransferSpeed() == 0){
 			getSlotDetails().forEach(slotConfigHolder -> slotConfigHolder.handleItemIO(machineBase));
 		}
 	}
@@ -131,7 +131,7 @@ public class SlotConfiguration implements INBTSerializable<NBTTagCompound>{
 	@Override
 	public NBTTagCompound serializeNBT() {
 		NBTTagCompound tagCompound = new NBTTagCompound();
-		tagCompound.setInteger("size", slotDetails.size());
+		tagCompound.setInt("size", slotDetails.size());
 		for (int i = 0; i < slotDetails.size(); i++) {
 			tagCompound.setTag("slot_" + i, slotDetails.get(i).serializeNBT());
 		}
@@ -140,9 +140,9 @@ public class SlotConfiguration implements INBTSerializable<NBTTagCompound>{
 
 	@Override
 	public void deserializeNBT(NBTTagCompound nbt) {
-		int size = nbt.getInteger("size");
+		int size = nbt.getInt("size");
 		for (int i = 0; i < size; i++) {
-			NBTTagCompound tagCompound = nbt.getCompoundTag("slot_" + i);
+			NBTTagCompound tagCompound = nbt.getCompound("slot_" + i);
 			SlotConfigHolder slotConfigHolder = new SlotConfigHolder(tagCompound);
 			updateSlotDetails(slotConfigHolder);
 		}
@@ -157,7 +157,7 @@ public class SlotConfiguration implements INBTSerializable<NBTTagCompound>{
 		public SlotConfigHolder(int slotID) {
 			this.slotID = slotID;
 			sideMap = new HashMap<>();
-			Arrays.stream(EnumFacing.VALUES).forEach(facing -> sideMap.put(facing, new SlotConfig(facing, slotID)));
+			Arrays.stream(EnumFacing.values()).forEach(facing -> sideMap.put(facing, new SlotConfig(facing, slotID)));
 		}
 
 		public SlotConfigHolder(NBTTagCompound tagCompound) {
@@ -221,8 +221,8 @@ public class SlotConfiguration implements INBTSerializable<NBTTagCompound>{
 		@Override
 		public NBTTagCompound serializeNBT() {
 			NBTTagCompound compound = new NBTTagCompound();
-			compound.setInteger("slotID", slotID);
-			Arrays.stream(EnumFacing.VALUES).forEach(facing -> compound.setTag("side_" + facing.ordinal(), sideMap.get(facing).serializeNBT()));
+			compound.setInt("slotID", slotID);
+			Arrays.stream(EnumFacing.values()).forEach(facing -> compound.setTag("side_" + facing.ordinal(), sideMap.get(facing).serializeNBT()));
 			compound.setBoolean("input", input);
 			compound.setBoolean("output", output);
 			compound.setBoolean("filter", filter);
@@ -232,9 +232,9 @@ public class SlotConfiguration implements INBTSerializable<NBTTagCompound>{
 		@Override
 		public void deserializeNBT(NBTTagCompound nbt) {
 			sideMap.clear();
-			slotID = nbt.getInteger("slotID");
-			Arrays.stream(EnumFacing.VALUES).forEach(facing -> {
-				NBTTagCompound compound = nbt.getCompoundTag("side_" + facing.ordinal());
+			slotID = nbt.getInt("slotID");
+			Arrays.stream(EnumFacing.values()).forEach(facing -> {
+				NBTTagCompound compound = nbt.getCompound("side_" + facing.ordinal());
 				SlotConfig config = new SlotConfig(compound);
 				sideMap.put(facing, config);
 			});
@@ -286,10 +286,10 @@ public class SlotConfiguration implements INBTSerializable<NBTTagCompound>{
 				return;
 			}
 			TileEntity tileEntity = machineBase.getWorld().getTileEntity(machineBase.getPos().offset(side));
-			if(tileEntity == null || !tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side)){
+			if(tileEntity == null || !tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side).isPresent()){
 				return;
 			}
-			IItemHandler sourceHandler = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side);
+			IItemHandler sourceHandler = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side).orElse(null);
 			for (int i = 0; i < sourceHandler.getSlots(); i++) {
 				ItemStack sourceStack = sourceHandler.getStackInSlot(i);
 				if(sourceStack.isEmpty()){
@@ -323,10 +323,10 @@ public class SlotConfiguration implements INBTSerializable<NBTTagCompound>{
 				return;
 			}
 			TileEntity tileEntity = machineBase.getWorld().getTileEntity(machineBase.getPos().offset(side));
-			if(tileEntity == null || !tileEntity.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite())){
+			if(tileEntity == null || !tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()).isPresent()){
 				return;
 			}
-			IItemHandler destHandler = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite());
+			IItemHandler destHandler = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, side.getOpposite()).orElse(null);
 			ItemStack stack = ItemHandlerHelper.insertItemStacked(destHandler, sourceStack, false);
 			inventory.setStackInSlot(slotID, stack);
 		}
@@ -334,17 +334,17 @@ public class SlotConfiguration implements INBTSerializable<NBTTagCompound>{
 		@Override
 		public NBTTagCompound serializeNBT() {
 			NBTTagCompound tagCompound = new NBTTagCompound();
-			tagCompound.setInteger("side", side.ordinal());
+			tagCompound.setInt("side", side.ordinal());
 			tagCompound.setTag("config", slotIO.serializeNBT());
-			tagCompound.setInteger("slot", slotID);
+			tagCompound.setInt("slot", slotID);
 			return tagCompound;
 		}
 
 		@Override
 		public void deserializeNBT(NBTTagCompound nbt) {
-			side = EnumFacing.VALUES[nbt.getInteger("side")];
-			slotIO = new SlotIO(nbt.getCompoundTag("config"));
-			slotID = nbt.getInteger("slot");
+			side = EnumFacing.byIndex(nbt.getInt("side"));
+			slotIO = new SlotIO(nbt.getCompound("config"));
+			slotID = nbt.getInt("slot");
 		}
 	}
 
@@ -366,13 +366,13 @@ public class SlotConfiguration implements INBTSerializable<NBTTagCompound>{
 		@Override
 		public NBTTagCompound serializeNBT() {
 			NBTTagCompound compound = new NBTTagCompound();
-			compound.setInteger("config", ioConfig.ordinal());
+			compound.setInt("config", ioConfig.ordinal());
 			return compound;
 		}
 
 		@Override
 		public void deserializeNBT(NBTTagCompound nbt) {
-			ioConfig = ExtractConfig.values()[nbt.getInteger("config")];
+			ioConfig = ExtractConfig.values()[nbt.getInt("config")];
 		}
 	}
 
@@ -418,13 +418,13 @@ public class SlotConfiguration implements INBTSerializable<NBTTagCompound>{
 		NBTTagCompound compound;
 		try {
 			compound = JsonToNBT.getTagFromJson(json);
-		} catch (NBTException e) {
+		} catch (CommandSyntaxException e) {
 			throw new UnsupportedOperationException("Clipboard conetents isnt a valid slot configuation");
 		}
 		if(!compound.hasKey("machine") || !compound.getString("machine").equals(machineIdent)){
 			throw new UnsupportedOperationException("Machine config is not for this machine.");
 		}
-		deserializeNBT(compound.getCompoundTag("data"));
+		deserializeNBT(compound.getCompound("data"));
 	}
 
 	//DO NOT CALL THIS, use the inventory access on the inventory

@@ -35,9 +35,8 @@ import net.minecraft.world.storage.loot.*;
 import net.minecraft.world.storage.loot.conditions.LootCondition;
 import net.minecraft.world.storage.loot.functions.LootFunction;
 import net.minecraft.world.storage.loot.functions.SetCount;
-import net.minecraft.world.storage.loot.functions.SetMetadata;
 import net.minecraftforge.event.LootTableLoadEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import reborncore.RebornCore;
 import reborncore.RebornRegistry;
 
@@ -71,11 +70,6 @@ public class LootManager {
 		return new LootFunction[] { new SetCount(new LootCondition[0], new RandomValueRange(min, max)) };
 	}
 
-	private static LootFunction[] countAndMeta(float minCount, float maxCount, int minMeta, int maxMeta) {
-		return new LootFunction[] {
-			new SetCount(new LootCondition[0], new RandomValueRange(minCount, maxCount)),
-			new SetMetadata(new LootCondition[0], new RandomValueRange(minMeta, maxMeta)) };
-	}
 
 	public static LootItem createLootEntry(Item item, double chance, ResourceLocation loottablelist) {
 		return new LootItem(new ItemStack(item), chance, 1, 1, loottablelist);
@@ -83,10 +77,6 @@ public class LootManager {
 
 	public static LootItem createLootEntry(Item item, int minSize, int maxSize, double chance, ResourceLocation loottablelist) {
 		return new LootItem(new ItemStack(item), chance, minSize, maxSize, loottablelist);
-	}
-
-	public static LootItem createLootEntry(Item item, int ordinal, int minStackSize, int maxStackSize, double chance, ResourceLocation loottablelist) {
-		return new LootItem(new ItemStack(item, 1, ordinal), chance, minStackSize, maxStackSize, loottablelist);
 	}
 
 	public static class InnerPool extends LootPool {

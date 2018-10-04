@@ -29,11 +29,11 @@
 package reborncore.common.powerSystem;
 
 
+import net.minecraft.init.Particles;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -126,7 +126,7 @@ public abstract class TilePowerAcceptor extends TileMachineBase implements
 	}
 
 	public void readFromNBTWithoutCoords(NBTTagCompound tag) {
-		NBTTagCompound data = tag.getCompoundTag("TilePowerAcceptor");
+		NBTTagCompound data = tag.getCompound("TilePowerAcceptor");
 		if (shouldHanldeEnergyNBT())
 			this.setEnergy(data.getDouble("energy"));
 	}
@@ -156,8 +156,8 @@ public abstract class TilePowerAcceptor extends TileMachineBase implements
 
 	// TileMachineBase
 	@Override
-	public void update() {
-		super.update();
+	public void tick() {
+		super.tick();
 		if(!world.isRemote){
 			Map<EnumFacing, TileEntity> acceptors = new HashMap<EnumFacing, TileEntity>();
 			if (getEnergy() > 0 && !world.isRemote) { //Tesla or IC2 should handle this if enabled, so only do this without tesla
@@ -173,7 +173,7 @@ public abstract class TilePowerAcceptor extends TileMachineBase implements
 								acceptors.put(side, tile);
 							}
 						}
-						else if (tile.hasCapability(CapabilityEnergy.ENERGY, side.getOpposite())) {
+						else if (tile.getCapability(CapabilityEnergy.ENERGY, side.getOpposite()).isPresent()) {
 							acceptors.put(side, tile);
 						}
 					}
@@ -196,14 +196,14 @@ public abstract class TilePowerAcceptor extends TileMachineBase implements
 									double d3 = (double) pos.getX() + world.rand.nextDouble() + (side.getXOffset() / 2);
 									double d8 = (double) pos.getY() + world.rand.nextDouble() + 1;
 									double d13 = (double) pos.getZ() + world.rand.nextDouble() + (side.getZOffset() / 2);
-									world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, d3, d8, d13, 0.0D, 0.0D, 0.0D);
+									world.spawnParticle(Particles.LARGE_SMOKE, d3, d8, d13, 0.0D, 0.0D, 0.0D);
 								}
 							} else {
 								double filled = eFace.addEnergy(Math.min(energyShare, remainingEnergy), false);
 								remainingEnergy -= useEnergy(filled, false);
 							}
-						} else if (tile.hasCapability(CapabilityEnergy.ENERGY, side.getOpposite())) {
-							IEnergyStorage energyStorage = tile.getCapability(CapabilityEnergy.ENERGY, side.getOpposite());
+						} else if (tile.getCapability(CapabilityEnergy.ENERGY, side.getOpposite()).isPresent()) {
+							IEnergyStorage energyStorage = tile.getCapability(CapabilityEnergy.ENERGY, side.getOpposite()).orElseGet(null);
 							if (forgePowerManager != null && energyStorage != null && energyStorage.canReceive() && this.canProvideEnergy(side)) {
 								int filled = energyStorage.receiveEnergy((int) Math.min(energyShare, remainingEnergy) * RebornCoreConfig.euPerFU, false);
 								remainingEnergy -= useEnergy(filled / RebornCoreConfig.euPerFU, false);
@@ -218,16 +218,16 @@ public abstract class TilePowerAcceptor extends TileMachineBase implements
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound tag) {
-		super.readFromNBT(tag);
-		NBTTagCompound data = tag.getCompoundTag("TilePowerAcceptor");
+	public void read(NBTTagCompound tag) {
+		super.read(tag);
+		NBTTagCompound data = tag.getCompound("TilePowerAcceptor");
 		if (shouldHanldeEnergyNBT())
 			this.setEnergy(data.getDouble("energy"));
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound tag) {
-		super.writeToNBT(tag);
+	public NBTTagCompound write(NBTTagCompound tag) {
+		super.write(tag);
 		NBTTagCompound data = new NBTTagCompound();
 		data.setDouble("energy", getEnergy());
 		tag.setTag("TilePowerAcceptor", data);

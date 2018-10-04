@@ -28,11 +28,10 @@
 
 package reborncore.common.registration;
 
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.discovery.ASMDataTable;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLStateEvent;
+import net.minecraftforge.fml.language.ModFileScanData;
 import reborncore.RebornCore;
 
 import java.lang.annotation.Annotation;
@@ -41,7 +40,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -93,7 +91,7 @@ public class RegistrationManager {
 		return false;
 	}
 
-	public static void load(FMLStateEvent event) {
+	public static void load(Event event) {
 		long start = System.currentTimeMillis();
 		final ModContainer activeMod = Loader.instance().activeModContainer();
 
@@ -142,7 +140,7 @@ public class RegistrationManager {
 		}
 	}
 
-	private static List<IRegistryFactory> getFactorysForSate(Class<? extends FMLStateEvent> event) {
+	private static List<IRegistryFactory> getFactorysForSate(Class<? extends net.minecraftforge.eventbus.api.Event> event) {
 		return factoryList.stream().filter(iRegistryFactory -> iRegistryFactory.getProcessSate() == event).collect(Collectors.toList());
 	}
 
@@ -164,7 +162,7 @@ public class RegistrationManager {
 		return null;
 	}
 
-	private static void loadFactorys(ASMDataTable dataTable) {
+	private static void loadFactorys(ModFileScanData dataTable) {
 		Set<ASMDataTable.ASMData> asmDataSet = dataTable.getAll(IRegistryFactory.RegistryFactory.class.getName());
 		for (ASMDataTable.ASMData data : asmDataSet) {
 			try {

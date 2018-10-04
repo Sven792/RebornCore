@@ -28,15 +28,12 @@
 
 package reborncore.common.util;
 
-import net.minecraft.block.BlockDynamicLiquid;
-import net.minecraft.block.BlockStaticLiquid;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.BlockFluidBase;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import reborncore.api.tile.IUpgradeable;
@@ -48,8 +45,8 @@ public class ItemHandlerUtils {
 		if (tileEntity == null) {
 			return;
 		}
-		if (tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null) != null) {
-			IItemHandler inventory = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+		if (tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).isPresent()) {
+			IItemHandler inventory = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).orElseGet(null);
 			dropItemHandler(world, pos, inventory);
 		}
 		if (tileEntity instanceof IUpgradeable) {
@@ -65,11 +62,12 @@ public class ItemHandlerUtils {
 			}
 			if (itemStack.getCount() > 0) {
 				if (itemStack.getItem() instanceof ItemBlock) {
-					if (((ItemBlock) itemStack.getItem()).getBlock() instanceof BlockFluidBase
-						|| ((ItemBlock) itemStack.getItem()).getBlock() instanceof BlockStaticLiquid
-						|| ((ItemBlock) itemStack.getItem()).getBlock() instanceof BlockDynamicLiquid) {
-						continue;
-					}
+					//TODO 1.13 fluids
+//					if (((ItemBlock) itemStack.getItem()).getBlock() instanceof BlockFluidBase
+//						|| ((ItemBlock) itemStack.getItem()).getBlock() instanceof BlockStaticLiquid
+//						|| ((ItemBlock) itemStack.getItem()).getBlock() instanceof BlockDynamicLiquid) {
+//						continue;
+//					}
 				}
 			}
 			InventoryHelper.spawnItemStack(world, (double) pos.getX(), (double) pos.getY(),

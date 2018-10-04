@@ -29,9 +29,9 @@
 package reborncore.client.shields;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.ModelShield;
 import net.minecraft.client.renderer.BannerTextures;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.entity.model.ModelShield;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.init.Items;
@@ -89,26 +89,26 @@ public class RebornItemStackRenderer extends TileEntityItemStackRenderer {
 				if (shieldTexture != null) {
 					if (shieldTexture.getState() == DownloadState.DOWNLOADED) {
 						if (customTextureMap.containsKey(location.getPath())) {
-							Minecraft.getMinecraft().getTextureManager().bindTexture(location);
+							Minecraft.getInstance().getTextureManager().bindTexture(location);
 						} else {
 							AbstractTexture texture = shieldTexture.getTexture();
 							customTextureMap.put(location.getPath(), texture);
 							final ResourceLocation resourceLocation = location;
-							THREAD_POOL.submit((Runnable) () -> Minecraft.getMinecraft().addScheduledTask((Runnable) () -> Minecraft.getMinecraft().getTextureManager().loadTexture(resourceLocation, texture)));
-							Minecraft.getMinecraft().getTextureManager().bindTexture(BannerTextures.SHIELD_BASE_TEXTURE);
+							THREAD_POOL.submit((Runnable) () -> Minecraft.getInstance().addScheduledTask((Runnable) () -> Minecraft.getInstance().getTextureManager().loadTexture(resourceLocation, texture)));
+							Minecraft.getInstance().getTextureManager().bindTexture(BannerTextures.SHIELD_BASE_TEXTURE);
 						}
 					} else {
-						Minecraft.getMinecraft().getTextureManager().bindTexture(BannerTextures.SHIELD_BASE_TEXTURE);
+						Minecraft.getInstance().getTextureManager().bindTexture(BannerTextures.SHIELD_BASE_TEXTURE);
 					}
 				} else {
-					Minecraft.getMinecraft().getTextureManager().bindTexture(BannerTextures.SHIELD_BASE_TEXTURE);
+					Minecraft.getInstance().getTextureManager().bindTexture(BannerTextures.SHIELD_BASE_TEXTURE);
 				}
 			} else {
 				renderer.renderByItem(itemStackIn);
 				return;
 			}
 			GlStateManager.pushMatrix();
-			GlStateManager.scale(1.0F, -1.0F, -1.0F);
+			GlStateManager.scalef(1.0F, -1.0F, -1.0F);
 			modelShield.render();
 			GlStateManager.popMatrix();
 			return;

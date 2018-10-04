@@ -33,7 +33,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import reborncore.api.ToolManager;
 import reborncore.common.RebornCoreConfig;
 
@@ -50,7 +50,7 @@ public class BlockWrenchEventHandler {
 			IBlockState state = event.getWorld().getBlockState(event.getPos());
 			if(wrenableBlocks.contains(state.getBlock())){
 				Block block = state.getBlock();
-				block.onBlockActivated(event.getWorld(), event.getPos(), state, event.getEntityPlayer(), EnumHand.MAIN_HAND, event.getFace(), 0F, 0F, 0F);
+				block.onBlockActivated(state, event.getWorld(), event.getPos(), event.getEntityPlayer(), EnumHand.MAIN_HAND, event.getFace(), 0F, 0F, 0F);
 				event.setCanceled(true);
 			}
 		}

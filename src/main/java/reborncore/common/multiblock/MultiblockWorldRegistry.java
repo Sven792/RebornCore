@@ -149,9 +149,10 @@ public class MultiblockWorldRegistry {
 					}
 
 					// This can occur on slow machines.
-					if (orphan.isInvalid()) {
-						continue;
-					}
+					//TODO 1.13 patches
+//					if (orphan.isInvalid()) {
+//						continue;
+//					}
 
 					// This block has been replaced by another.
 					if (worldObj.getTileEntity(coord) != orphan) {

@@ -59,15 +59,6 @@ public class PoweredItemCapabilityProvider implements ICapabilitySerializable<NB
 			this.energyStorage = new EnergyStorage(poweredItem.getCapacity(), poweredItem.getMaxInput(), poweredItem.getMaxOutput(), 0);
 		}
 	}
-
-
-	@Override
-	public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
-		if (energyStorage != null  && capability == CapabilityEnergy.ENERGY) {
-			return true;
-		}
-		return false;
-	}
 	
 	@Nullable
 	@Override

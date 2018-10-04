@@ -28,15 +28,15 @@
 
 package reborncore.common.network;
 
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.fml.LogicalSide;
 
 import java.lang.reflect.Constructor;
 
 public class RegisterPacketEvent extends Event {
 
-	public void registerPacket(Class<? extends INetworkPacket> packet, Side processingSide) {
+	public void registerPacket(Class<? extends INetworkPacket> packet, LogicalSide processingSide) {
 		int id = getNextID(packet);
 		if (packet.getName() == INetworkPacket.class.getName()) {
 			throw new RuntimeException("Cannot register a INetworkPacket, please register a child of this");

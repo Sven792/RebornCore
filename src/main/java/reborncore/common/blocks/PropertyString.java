@@ -28,16 +28,15 @@
 
 package reborncore.common.blocks;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
-import net.minecraft.block.properties.PropertyHelper;
+import net.minecraft.state.AbstractProperty;
 
 import java.util.*;
 
 /**
  * Created by covers1624 on 2/6/2016.
  */
-public class PropertyString extends PropertyHelper<String> {
+public class PropertyString extends AbstractProperty<String> {
 
 	private final LinkedList<String> valuesSet;
 
@@ -64,7 +63,7 @@ public class PropertyString extends PropertyHelper<String> {
 		if (valuesSet.contains(value.intern())) {
 			return Optional.of(value.intern());
 		}
-		return Optional.absent();
+		return Optional.empty();
 	}
 
 	@Override

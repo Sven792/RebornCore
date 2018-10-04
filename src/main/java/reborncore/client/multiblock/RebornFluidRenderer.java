@@ -30,18 +30,19 @@ package reborncore.client.multiblock;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.BlockFluidRenderer;
-import net.minecraft.client.renderer.color.BlockColors;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.IWorldReaderBase;
 
 //This is used to render a full height fluid without having an actaull block in the world. Requires an acess transformer to compile/work.
 public class RebornFluidRenderer extends BlockFluidRenderer {
 	public RebornFluidRenderer() {
-		super(BlockColors.init());
+		super();
 	}
 
-	@Override
-	public float getFluidHeight(IBlockAccess blockAccess, BlockPos blockPosIn, Material blockMaterial) {
+	//TODO 1.13 AT's
+	//@Override
+	public float getFluidHeight(IWorldReaderBase reader, BlockPos pos, Fluid fluidIn) {
 		return 1F;
 	}
 }

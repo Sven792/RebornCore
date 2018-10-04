@@ -34,6 +34,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.Rotation;
@@ -41,8 +42,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.OptionalCapabilityInstance;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import reborncore.api.IListInfoProvider;
@@ -87,50 +89,57 @@ public class TileMachineBase extends TileEntity implements ITickable, IUpgradeab
 	 */
 	double powerMultiplier = 1;
 
+	public TileMachineBase(TileEntityType<?> tileEntityTypeIn) {
+		super(tileEntityTypeIn);
+	}
+
 	public void syncWithAll() {
 		if (!world.isRemote) {
-			NetworkManager.sendToAllAround(new CustomDescriptionPacket(this.pos, this.writeToNBT(new NBTTagCompound())), new NetworkRegistry.TargetPoint(this.world.provider.getDimension(), this.pos.getX(), this.pos.getY(), this.pos.getZ(), 64));
+			//TODO 1.13 networking
+			//NetworkManager.sendToAllAround(new CustomDescriptionPacket(this.pos, this.write(new NBTTagCompound())), new NetworkRegistry.TargetPoint(this.world.dimension.getDimension(), this.pos.getX(), this.pos.getY(), this.pos.getZ(), 64));
 		}
 	}
 
-	@Override
-	public void onLoad() {
-		super.onLoad();
-		if (slotConfiguration == null) {
-			if (getInventoryForTile().isPresent()) {
-				slotConfiguration = new SlotConfiguration(getInventoryForTile().get());
-			} else {
-				slotConfiguration = new SlotConfiguration();
-			}
-		}
-		if(getTank() != null){
-			if(fluidConfiguration == null){
-				fluidConfiguration = new FluidConfiguration();
-			}
-		}
-	}
+	//TODO 1.13 patches
+//	@Override
+//	public void onLoad() {
+//		super.onLoad();
+//		if (slotConfiguration == null) {
+//			if (getInventoryForTile().isPresent()) {
+//				slotConfiguration = new SlotConfiguration(getInventoryForTile().get());
+//			} else {
+//				slotConfiguration = new SlotConfiguration();
+//			}
+//		}
+//		if(getTank() != null){
+//			if(fluidConfiguration == null){
+//				fluidConfiguration = new FluidConfiguration();
+//			}
+//		}
+//	}
 
-	@Nullable
-	@Override
-	public SPacketUpdateTileEntity getUpdatePacket() {
-		return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), getUpdateTag());
-	}
+	//TODO 1.13 networking
+//	@Nullable
+//	@Override
+//	public SPacketUpdateTileEntity getUpdatePacket() {
+//		return new SPacketUpdateTileEntity(getPos(), getBlockMetadata(), getUpdateTag());
+//	}
+//
+//	@Override
+//	public NBTTagCompound getUpdateTag() {
+//		NBTTagCompound compound = super.write(new NBTTagCompound());
+//		write(compound);
+//		return compound;
+//	}
+//
+//	@Override
+//	public void onDataPacket(net.minecraft.network.NetworkManager net, SPacketUpdateTileEntity pkt) {
+//		super.onDataPacket(net, pkt);
+//		read(pkt.getNbtCompound());
+//	}
 
 	@Override
-	public NBTTagCompound getUpdateTag() {
-		NBTTagCompound compound = super.writeToNBT(new NBTTagCompound());
-		writeToNBT(compound);
-		return compound;
-	}
-
-	@Override
-	public void onDataPacket(net.minecraft.network.NetworkManager net, SPacketUpdateTileEntity pkt) {
-		super.onDataPacket(net, pkt);
-		readFromNBT(pkt.getNbtCompound());
-	}
-
-	@Override
-	public void update() {
+	public void tick() {
 		@Nullable
 		RecipeCrafter crafter = null;
 		if (getCrafterForTile().isPresent()) {
@@ -190,20 +199,21 @@ public class TileMachineBase extends TileEntity implements ITickable, IUpgradeab
 	public boolean isActive() {
 		Block block = world.getBlockState(pos).getBlock();
 		if (block instanceof BlockMachineBase) {
-			return world.getBlockState(pos).getValue(BlockMachineBase.ACTIVE);
+			return world.getBlockState(pos).get(BlockMachineBase.ACTIVE);
 		}
 		return false;
 	}
 
 	// This stops the tile from getting cleared when the state is
 	// updated(rotation and on/off)
-	@Override
-	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate) {
-		if (oldState.getBlock() != newSate.getBlock()) {
-			return true;
-		}
-		return false;
-	}
+	//TODO 1.13 patches
+//	@Override
+//	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate) {
+//		if (oldState.getBlock() != newSate.getBlock()) {
+//			return true;
+//		}
+//		return false;
+//	}
 
 	public Optional<Inventory> getInventoryForTile() {
 		if (this instanceof ItemHandlerProvider) {
@@ -242,8 +252,8 @@ public class TileMachineBase extends TileEntity implements ITickable, IUpgradeab
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound tagCompound) {
-		super.readFromNBT(tagCompound);
+	public void read(NBTTagCompound tagCompound) {
+		super.read(tagCompound);
 		if (getInventoryForTile().isPresent()) {
 			getInventoryForTile().get().readFromNBT(tagCompound);
 		}
@@ -251,7 +261,7 @@ public class TileMachineBase extends TileEntity implements ITickable, IUpgradeab
 			getCrafterForTile().get().readFromNBT(tagCompound);
 		}
 		if (tagCompound.hasKey("slotConfig")) {
-			slotConfiguration = new SlotConfiguration(tagCompound.getCompoundTag("slotConfig"));
+			slotConfiguration = new SlotConfiguration(tagCompound.getCompound("slotConfig"));
 		} else {
 			if (getInventoryForTile().isPresent()) {
 				slotConfiguration = new SlotConfiguration(getInventoryForTile().get());
@@ -260,7 +270,7 @@ public class TileMachineBase extends TileEntity implements ITickable, IUpgradeab
 			}
 		}
 		if(tagCompound.hasKey("fluidConfig") && getTank() != null){
-			fluidConfiguration = new FluidConfiguration(tagCompound.getCompoundTag("fluidConfig"));
+			fluidConfiguration = new FluidConfiguration(tagCompound.getCompound("fluidConfig"));
 		} else if (getTank() != null && fluidConfiguration == null){
 			fluidConfiguration = new FluidConfiguration();
 		}
@@ -268,8 +278,8 @@ public class TileMachineBase extends TileEntity implements ITickable, IUpgradeab
 	}
 
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
-		super.writeToNBT(tagCompound);
+	public NBTTagCompound write(NBTTagCompound tagCompound) {
+		super.write(tagCompound);
 		if (getInventoryForTile().isPresent()) {
 			getInventoryForTile().get().writeToNBT(tagCompound);
 		}
@@ -303,26 +313,9 @@ public class TileMachineBase extends TileEntity implements ITickable, IUpgradeab
 	}
 
 	@Override
-	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+	public <T> OptionalCapabilityInstance<T> getCapability(Capability<T> capability, EnumFacing facing) {
 		if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && getInventoryForTile().isPresent()) {
-			return true;
-		}
-		if(getTank() != null && capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY){
-			if(fluidConfiguration != null && fluidConfiguration.getSideDetail(facing) != null){
-				FluidConfiguration.FluidConfig fluidConfig = fluidConfiguration.getSideDetail(facing);
-				if(!fluidConfig.getIoConfig().isEnabled()){
-					return false;
-				}
-			}
-			return true;
-		}
-		return super.hasCapability(capability, facing);
-	}
-
-	@Override
-	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
-		if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && getInventoryForTile().isPresent()) {
-			return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(getInventoryForTile().get().getExternal(facing));
+			return OptionalCapabilityInstance.orEmpty(capability, CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, getInventoryForTile().get().getExternalHolder(facing)); //TODO is this correct, im kinda guessing here lol
 		}
 		if(getTank() != null && capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY){
 			if(fluidConfiguration != null && fluidConfiguration.getSideDetail(facing) != null){
@@ -332,7 +325,7 @@ public class TileMachineBase extends TileEntity implements ITickable, IUpgradeab
 				}
 			}
 			getTank().setSide(facing);
-			return CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY.cast(getTank());
+			return OptionalCapabilityInstance.orEmpty(capability, CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, getTank().holder);
 		}
 		return super.getCapability(capability, facing);
 	}

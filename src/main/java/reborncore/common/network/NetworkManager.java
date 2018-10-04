@@ -30,10 +30,11 @@ package reborncore.common.network;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import net.minecraftforge.fml.relauncher.Side;
+
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.NetworkRegistry;
 import reborncore.RebornCore;
 
 import java.util.ArrayList;
@@ -115,7 +116,7 @@ public class NetworkManager {
 		return "rc&" + packageName.substring(0, 11) + "&" + Long.toString(crc.getValue()).substring(0, 5);
 	}
 
-	public static PacketDetails registerPacket(Class<? extends INetworkPacket> packetClass, Side side){
+	public static PacketDetails registerPacket(Class<? extends INetworkPacket> packetClass, LogicalSide side){
 		SimpleNetworkWrapper wrapper = createOrGetNetworkWrapper(packetClass);
 		int id = getNextIDForWrapper(wrapper);
 		wrapper.registerMessage(PacketWrapper.PacketWrapperHandler.class, PacketWrapper.class, id, side);

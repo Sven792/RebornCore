@@ -30,9 +30,11 @@ package reborncore.common.util;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.common.capabilities.OptionalCapabilityInstance;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import reborncore.common.network.NetworkManager;
 import reborncore.common.network.packet.CustomDescriptionPacket;
 import reborncore.common.tile.FluidConfiguration;
@@ -45,6 +47,7 @@ public class Tank extends FluidTank {
 	private final String name;
 
 	private FluidStack lastBeforeUpdate = null;
+	public final OptionalCapabilityInstance<IFluidHandler> holder = OptionalCapabilityInstance.of(() -> this);
 
 	Fluid lastFluid;
 	int lastAmmount;
@@ -92,7 +95,7 @@ public class Tank extends FluidTank {
 			// allow to read empty tanks
 			setFluid(null);
 
-			NBTTagCompound tankData = nbt.getCompoundTag(name);
+			NBTTagCompound tankData = nbt.getCompound(name);
 			super.readFromNBT(tankData);
 		}
 		return this;

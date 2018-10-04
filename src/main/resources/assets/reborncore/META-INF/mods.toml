@@ -1,0 +1,8 @@
+modLoader="javafml"
+loaderVersion="[13,)"
+
+[[mods]]
+    modId="reborncore"
+    version="${version}"
+    displayName="Reborn Core"
+    description='Powering Team Reborn, Reborn Core is a lib mod that adds no content.'

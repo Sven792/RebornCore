@@ -28,20 +28,21 @@
 
 package reborncore;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.CrashReportExtender;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.javafmlmod.FMLModLoadingContext;
+import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reborncore.api.ToolManager;
 import reborncore.common.blocks.BlockWrenchEventHandler;
-import reborncore.common.commands.CommandListMods;
-import reborncore.common.commands.CommandListRecipes;
 import reborncore.common.multiblock.MultiblockEventHandler;
 import reborncore.common.multiblock.MultiblockServerTickHandler;
 import reborncore.common.network.NetworkManager;
@@ -57,7 +58,7 @@ import reborncore.common.util.*;
 
 import java.io.File;
 
-@Mod(modid = RebornCore.MOD_ID, name = RebornCore.MOD_NAME, version = RebornCore.MOD_VERSION, acceptedMinecraftVersions = "[1.12]", dependencies = "required-after:forge@[14.21.0.2359,);", certificateFingerprint = "8727a3141c8ec7f173b87aa78b9b9807867c4e6b")
+@Mod(RebornCore.MOD_ID)
 public class RebornCore {
 
 	public static final String MOD_NAME = "Reborn Core";
@@ -66,17 +67,20 @@ public class RebornCore {
 	public static final String WEB_URL = "https://files.modmuss50.me/";
 
 	public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
-	@Mod.Instance
-	public static RebornCore INSTANCE;
-	@SidedProxy(clientSide = "reborncore.ClientProxy", serverSide = "reborncore.CommonProxy")
-	public static CommonProxy proxy;
+
+	//TODO proxys
+	public static CommonProxy proxy = new CommonProxy();
 	public static File configDir;
 
-	@Mod.EventHandler
+	public RebornCore() {
+		FMLModLoadingContext.get().getModEventBus().addListener(this::preInit);
+		FMLModLoadingContext.get().getModEventBus().addListener(this::init);
+		FMLModLoadingContext.get().getModEventBus().addListener(this::postInit);
+	}
+
 	public void preInit(FMLPreInitializationEvent event) {
-		INSTANCE = this;
-		FMLCommonHandler.instance().registerCrashCallable(new CrashHandler());
-		configDir = new File(event.getModConfigurationDirectory(), "teamreborn");
+		CrashReportExtender.registerCrashCallable(new CrashHandler());
+		configDir = new File(FMLPaths.CONFIGDIR.get().toFile(), "teamreborn");
 		if (!configDir.exists()) {
 			configDir.mkdir();
 		}
@@ -85,7 +89,6 @@ public class RebornCore {
 		RegistrationManager.init(event);
 		RegistrationManager.load(new RegistryConstructionEvent());
 		ConfigRegistryFactory.saveAll();
-		MinecraftForge.EVENT_BUS.register(OreRegistationEvent.class);
 		PowerSystem.priorityConfig = (new File(configDir, "energy_priority.json"));
 		PowerSystem.reloadConfig();
 		CalenderUtils.loadCalender(); //Done early as some features need this
@@ -108,10 +111,8 @@ public class RebornCore {
 		ToolManager.INSTANCE.customToolHandlerList.add(new GenericWrenchHelper(new ResourceLocation("redstonearsenal:tool.wrench_flux"), false));
 	}
 
-	@Mod.EventHandler
 	public void init(FMLInitializationEvent event) {
 		// packets
-		OreUtil.scanForOres();
 		NetworkManager.load();
 
 		RebornCoreShields.init();
@@ -125,21 +126,9 @@ public class RebornCore {
 		RegistrationManager.load(event);
 	}
 
-	@Mod.EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
 		proxy.postInit(event);
 		RegistrationManager.load(event);
-		try {
-			OreUtil.remove("blockMetal");
-		} catch (NoSuchFieldException | IllegalAccessException e) {
-			LOGGER.error("Failed to remove ore");
-			LOGGER.error(e);
-		}
-	}
-
-	@Mod.EventHandler
-	public void loaded(FMLLoadCompleteEvent event) {
-		OreRegistationEvent.loadComplete();
 	}
 
 	@Mod.EventHandler
@@ -150,19 +139,13 @@ public class RebornCore {
 
 	@SubscribeEvent
 	public void registerPackets(RegisterPacketEvent event) {
-		event.registerPacket(CustomDescriptionPacket.class, Side.CLIENT);
-		event.registerPacket(PacketSlotSave.class, Side.SERVER);
-		event.registerPacket(PacketFluidConfigSave.class, Side.SERVER);
-		event.registerPacket(PacketConfigSave.class, Side.SERVER);
-		event.registerPacket(PacketSlotSync.class, Side.CLIENT);
-		event.registerPacket(PacketFluidConfigSync.class, Side.CLIENT);
-		event.registerPacket(PacketIOSave.class, Side.SERVER);
-		event.registerPacket(PacketFluidIOSave.class, Side.SERVER);
-	}
-
-	@Mod.EventHandler
-	public void serverStarting(FMLServerStartingEvent event) {
-		event.registerServerCommand(new CommandListRecipes());
-		event.registerServerCommand(new CommandListMods());
+		event.registerPacket(CustomDescriptionPacket.class, LogicalSide.CLIENT);
+		event.registerPacket(PacketSlotSave.class, LogicalSide.SERVER);
+		event.registerPacket(PacketFluidConfigSave.class, LogicalSide.SERVER);
+		event.registerPacket(PacketConfigSave.class, LogicalSide.SERVER);
+		event.registerPacket(PacketSlotSync.class, LogicalSide.CLIENT);
+		event.registerPacket(PacketFluidConfigSync.class, LogicalSide.CLIENT);
+		event.registerPacket(PacketIOSave.class, LogicalSide.SERVER);
+		event.registerPacket(PacketFluidIOSave.class, LogicalSide.SERVER);
 	}
 }

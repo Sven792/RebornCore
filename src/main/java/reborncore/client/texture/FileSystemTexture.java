@@ -29,14 +29,15 @@
 package reborncore.client.texture;
 
 import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.client.renderer.texture.NativeImage;
 import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.client.resources.data.IMetadataSection;
+import net.minecraft.resources.IResource;
+import net.minecraft.resources.IResourceManager;
+import net.minecraft.resources.data.IMetadataSectionSerializer;
 import net.minecraft.util.ResourceLocation;
 import org.apache.commons.io.IOUtils;
 
-import java.awt.image.BufferedImage;
+import javax.annotation.Nullable;
 import java.io.*;
 
 /**
@@ -44,7 +45,7 @@ import java.io.*;
  */
 public class FileSystemTexture extends AbstractTexture {
 	protected final File textureLocation;
-	BufferedImage image;
+	NativeImage image;
 
 	public FileSystemTexture(File textureResourceLocation) {
 		this.textureLocation = textureResourceLocation;
@@ -61,7 +62,7 @@ public class FileSystemTexture extends AbstractTexture {
 					FileInputStream stream;
 
 					@Override
-					public ResourceLocation getResourceLocation() {
+					public ResourceLocation getLocation() {
 						return new ResourceLocation("reborncore:loaded/" + textureLocation.getName());
 					}
 
@@ -82,13 +83,14 @@ public class FileSystemTexture extends AbstractTexture {
 						return false;
 					}
 
+					@Nullable
 					@Override
-					public <T extends IMetadataSection> T getMetadata(String sectionName) {
+					public <T> T getMetadata(IMetadataSectionSerializer<T> serializer) {
 						return null;
 					}
 
 					@Override
-					public String getResourcePackName() {
+					public String getPackName() {
 						return "reborncore";
 					}
 
@@ -99,11 +101,13 @@ public class FileSystemTexture extends AbstractTexture {
 						}
 					}
 				};
-				image = TextureUtil.readBufferedImage(iresource.getInputStream());
+				image = NativeImage.read(iresource.getInputStream());
 			} finally {
 				IOUtils.closeQuietly(iresource);
 			}
 		}
-		TextureUtil.uploadTextureImageAllocate(this.getGlTextureId(), image, false, false);
+		this.bindTexture();
+		TextureUtil.allocateTextureImpl(this.getGlTextureId(), 0, image.getWidth(), image.getHeight());
+		image.uploadTextureSub(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), false, false, false);
 	}
 }

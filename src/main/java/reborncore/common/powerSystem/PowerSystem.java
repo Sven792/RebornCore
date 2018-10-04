@@ -29,7 +29,8 @@
 package reborncore.common.powerSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.common.thread.EffectiveSide;
 import reborncore.RebornCore;
 import reborncore.common.RebornCoreConfig;
 import reborncore.common.util.serialization.SerializationUtil;
@@ -127,10 +128,10 @@ public class PowerSystem {
 			}
 		}
 
-		if (FMLCommonHandler.instance().getEffectiveSide().isClient() && doFormat) {
+		if (EffectiveSide.get() == LogicalSide.CLIENT && doFormat) {
 			ret += NumberFormat
 					.getNumberInstance(Locale.forLanguageTag(
-							Minecraft.getMinecraft().getLanguageManager().getCurrentLanguage().getLanguageCode()))
+							Minecraft.getInstance().getLanguageManager().getCurrentLanguage().getLanguageCode()))
 					.format(value);
 		} else {
 			ret += value;
