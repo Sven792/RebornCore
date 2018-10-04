@@ -173,7 +173,7 @@ public class FluidUtils {
 	public static IFluidHandlerItem getFluidHandler(ItemStack container) {
 		ItemStack copy = container.copy();
 		copy.setCount(1);
-		return FluidUtil.getFluidHandler(copy);
+		return FluidUtil.getFluidHandler(copy).orElse(null);
 	}
 
 	@Nullable
@@ -183,7 +183,7 @@ public class FluidUtils {
 		}
 		container = container.copy();
 		container.setCount(1);
-		final IFluidHandlerItem fluidHandler = FluidUtil.getFluidHandler(container);
+		final IFluidHandlerItem fluidHandler = FluidUtil.getFluidHandler(container).orElse(null);
 		if (fluidHandler != null) {
 			return fluidHandler.drain(Fluid.BUCKET_VOLUME, false);
 		}
@@ -194,7 +194,7 @@ public class FluidUtils {
 	public static ItemStack getFilledContainer(Fluid fluid, ItemStack empty) {
 		if (fluid == null || empty.isEmpty())
 			return ItemStack.EMPTY;
-		IFluidHandlerItem fluidHandler = FluidUtil.getFluidHandler(empty);
+		IFluidHandlerItem fluidHandler = FluidUtil.getFluidHandler(empty).orElse(null);
 		fluidHandler.fill(new FluidStack(fluid, fluidHandler.getTankProperties()[0].getCapacity()), true);
 		return empty;
 	}

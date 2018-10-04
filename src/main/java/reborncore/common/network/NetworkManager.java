@@ -29,25 +29,25 @@
 package reborncore.common.network;
 
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
 import reborncore.RebornCore;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.zip.CRC32;
 
 public class NetworkManager {
 
-	public static HashMap<Class<? extends INetworkPacket>, SimpleNetworkWrapper> packetWrapperMap = new HashMap<>();
-	public static HashMap<String, SimpleNetworkWrapper> packageWrapperMap = new HashMap<>();
-	private static HashMap<SimpleNetworkWrapper, IntStore> wrapperIdList = new HashMap<>();
+	private static SimpleChannel channel;
 
 	public static void load() {
+		channel = NetworkRegistry.ChannelBuilder.named(new ResourceLocation(RebornCore.MOD_ID, "networking"))
+				.simpleChannel();
+
 		MinecraftForge.EVENT_BUS.post(new RegisterPacketEvent());
 	}
 
@@ -55,27 +55,29 @@ public class NetworkManager {
 
 	public static void sendToServer(INetworkPacket packet) {
 		checkPacket(packet);
-		getWrapperForPacket(packet.getClass()).sendToServer(new PacketWrapper(packet));
+		channel.sendToServer(new PacketWrapper(packet));
 	}
 
-	public static void sendToAllAround(INetworkPacket packet, NetworkRegistry.TargetPoint point) {
-		checkPacket(packet);
-		getWrapperForPacket(packet.getClass()).sendToAllAround(new PacketWrapper(packet), point);
-	}
+	//TODO 1.13 networking on most of this, the basic outline is there ,but i want the game running before I start on this
+
+//	public static void sendToAllAround(INetworkPacket packet, NetworkRegistry.TargetPoint point) {
+//		checkPacket(packet);
+//		getWrapperForPacket(packet.getClass()).sendToAllAround(new PacketWrapper(packet), point);
+//	}
 
 	public static void sendToAll(INetworkPacket packet) {
-		checkPacket(packet);
-		getWrapperForPacket(packet.getClass()).sendToAll(new PacketWrapper(packet));
+//		checkPacket(packet);
+//		getWrapperForPacket(packet.getClass()).sendToAll(new PacketWrapper(packet));
 	}
 
 	public static void sendToPlayer(INetworkPacket packet, EntityPlayerMP playerMP) {
-		checkPacket(packet);
-		getWrapperForPacket(packet.getClass()).sendTo(new PacketWrapper(packet), playerMP);
+//		checkPacket(packet);
+//		getWrapperForPacket(packet.getClass()).sendTo(new PacketWrapper(packet), playerMP);
 	}
 
 	public static void sendToWorld(INetworkPacket packet, World world) {
-		checkPacket(packet);
-		getWrapperForPacket(packet.getClass()).sendToDimension(new PacketWrapper(packet), world.provider.getDimension());
+//		checkPacket(packet);
+//		getWrapperForPacket(packet.getClass()).sendToDimension(new PacketWrapper(packet), world.provider.getDimension());
 	}
 
 	public static void checkPacket(INetworkPacket packet){
@@ -88,53 +90,27 @@ public class NetworkManager {
 		return packetList.stream().filter(packetDetails -> packetDetails.packetClass.equals(clazz)).findAny().orElse(null);
 	}
 
-	public static SimpleNetworkWrapper getWrapperForPacket(Class<? extends INetworkPacket> packetClass){
-		if(!packetWrapperMap.containsKey(packetClass)){
-			return null;
-		}
-		return packetWrapperMap.get(packetClass);
-	}
-
-	public static SimpleNetworkWrapper createOrGetNetworkWrapper(Class<? extends INetworkPacket> packetClass){
-		String wrapperName = getWrapperName(packetClass);
-		if(packageWrapperMap.containsKey(wrapperName)){
-			return packageWrapperMap.get(wrapperName);
-		} else {
-			SimpleNetworkWrapper newNetworkWrapper = NetworkRegistry.INSTANCE.newSimpleChannel(wrapperName);
-			RebornCore.LOGGER.info("Created new network wrapper " + wrapperName);
-			packageWrapperMap.put(wrapperName, newNetworkWrapper);
-			return newNetworkWrapper;
-		}
-	}
-
-	public static String getWrapperName(Class<? extends INetworkPacket> packetClass){
-		String packageName = packetClass.getCanonicalName().substring(0, packetClass.getCanonicalName().lastIndexOf("."));
-		CRC32 crc = new CRC32();
-		crc.update(packageName.getBytes());
-		//Packet network names have a max size of 20
-		//3 chars on the rc bit, 11 on the package name, 1 to the & and the last 5 on the hash
-		return "rc&" + packageName.substring(0, 11) + "&" + Long.toString(crc.getValue()).substring(0, 5);
-	}
-
 	public static PacketDetails registerPacket(Class<? extends INetworkPacket> packetClass, LogicalSide side){
-		SimpleNetworkWrapper wrapper = createOrGetNetworkWrapper(packetClass);
-		int id = getNextIDForWrapper(wrapper);
-		wrapper.registerMessage(PacketWrapper.PacketWrapperHandler.class, PacketWrapper.class, id, side);
-		packetWrapperMap.put(packetClass, wrapper);
-		RebornCore.LOGGER.info("Registed packet to " + getWrapperName(packetClass) + " side: " + side + " id:" + id);
-		PacketDetails packetDetails = new PacketDetails(packetClass, id, wrapper);
+//		SimpleNetworkWrapper wrapper = createOrGetNetworkWrapper(packetClass);
+//		int id = getNextIDForWrapper(wrapper);
+//		wrapper.registerMessage(PacketWrapper.PacketWrapperHandler.class, PacketWrapper.class, id, side);
+//		packetWrapperMap.put(packetClass, wrapper);
+//		RebornCore.LOGGER.info("Registed packet to " + getWrapperName(packetClass) + " side: " + side + " id:" + id);
+		PacketDetails packetDetails = new PacketDetails(packetClass, 0, channel);
 		packetList.add(packetDetails);
 		return packetDetails;
 	}
 
-	public static int getNextIDForWrapper(SimpleNetworkWrapper networkWrapper){
-		if(wrapperIdList.containsKey(networkWrapper)){
-			wrapperIdList.get(networkWrapper).id++;
-			return wrapperIdList.get(networkWrapper).id;
-		} else {
-			wrapperIdList.put(networkWrapper, new IntStore());
-			return 0;
-		}
+	//TODO lets use resource locations
+	public static int getNextID(){
+//		if(wrapperIdList.containsKey(networkWrapper)){
+//			wrapperIdList.get(networkWrapper).id++;
+//			return wrapperIdList.get(networkWrapper).id;
+//		} else {
+//			wrapperIdList.put(networkWrapper, new IntStore());
+//			return 0;
+//		}
+		return -1;
 	}
 
 	private static class IntStore {
@@ -144,12 +120,12 @@ public class NetworkManager {
 	public static class PacketDetails {
 		public Class<? extends INetworkPacket> packetClass;
 		public int id;
-		SimpleNetworkWrapper networkWrapper;
+		SimpleChannel simpleChannel;
 
-		public PacketDetails(Class<? extends INetworkPacket> packetClass, int id, SimpleNetworkWrapper networkWrapper) {
+		public PacketDetails(Class<? extends INetworkPacket> packetClass, int id, SimpleChannel simpleChannel) {
 			this.packetClass = packetClass;
 			this.id = id;
-			this.networkWrapper = networkWrapper;
+			this.simpleChannel = simpleChannel;
 		}
 	}
 

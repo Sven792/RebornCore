@@ -32,6 +32,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUseContext;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -49,11 +50,9 @@ public class TorchHelper {
 			Item item = torchStack.getItem();
 			if (!(item instanceof ItemBlock))
 				continue;
-			int oldMeta = torchStack.getItemDamage();
 			int oldSize = torchStack.getCount();
-			EnumActionResult result = torchStack.onItemUse(player, world, pos, hand, side, xOffset, yOffset, zOffset);
-			if (player.capabilities.isCreativeMode) {
-				torchStack.setItemDamage(oldMeta);
+			EnumActionResult result = torchStack.onItemUse(new ItemUseContext(player, torchStack, pos, side, xOffset, yOffset, zOffset));
+			if (player.isCreative()) {
 				torchStack.setCount(oldSize);
 			} else if (torchStack.getCount() <= 0) {
 				ForgeEventFactory.onPlayerDestroyItem(player, torchStack, hand);

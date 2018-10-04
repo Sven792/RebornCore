@@ -30,7 +30,6 @@ package reborncore.common.network.packet;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import reborncore.RebornCore;
 import reborncore.common.network.ExtendedPacketBuffer;
 import reborncore.common.network.INetworkPacket;
@@ -68,19 +67,20 @@ public class PacketFluidConfigSync implements INetworkPacket {
 	}
 
 	@Override
-	public void processData(MessageContext context) {
-		if (!RebornCore.proxy.getClientWorld().isBlockLoaded(pos, false)) {
-			return;
-		}
-		TileMachineBase machineBase = (TileMachineBase) RebornCore.proxy.getClientWorld().getTileEntity(pos);
-		if (machineBase == null || machineBase.fluidConfiguration == null || fluidConfiguration == null) {
-			RebornCore.LOGGER.error("Failed to sync fluid config data to " + pos);
-		}
-		Minecraft.getMinecraft().addScheduledTask(() -> {
-			fluidConfiguration.getAllSides().forEach(fluidConfig -> machineBase.fluidConfiguration.updateFluidConfig(fluidConfig));
-			machineBase.fluidConfiguration.setInput(fluidConfiguration.autoInput());
-			machineBase.fluidConfiguration.setOutput(fluidConfiguration.autoOutput());
-		});
+	public void processData() {
+		//TODO 1.13 packets
+//		if (!RebornCore.proxy.getClientWorld().isBlockLoaded(pos, false)) {
+//			return;
+//		}
+//		TileMachineBase machineBase = (TileMachineBase) RebornCore.proxy.getClientWorld().getTileEntity(pos);
+//		if (machineBase == null || machineBase.fluidConfiguration == null || fluidConfiguration == null) {
+//			RebornCore.LOGGER.error("Failed to sync fluid config data to " + pos);
+//		}
+//		Minecraft.getMinecraft().addScheduledTask(() -> {
+//			fluidConfiguration.getAllSides().forEach(fluidConfig -> machineBase.fluidConfiguration.updateFluidConfig(fluidConfig));
+//			machineBase.fluidConfiguration.setInput(fluidConfiguration.autoInput());
+//			machineBase.fluidConfiguration.setOutput(fluidConfiguration.autoOutput());
+//		});
 
 
 	}

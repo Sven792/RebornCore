@@ -29,7 +29,6 @@
 package reborncore.common.network.packet;
 
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import reborncore.common.network.ExtendedPacketBuffer;
 import reborncore.common.network.INetworkPacket;
 import reborncore.common.network.NetworkManager;
@@ -75,18 +74,19 @@ public class PacketIOSave implements INetworkPacket {
 	}
 
 	@Override
-	public void processData(MessageContext context) {
-		TileMachineBase legacyMachineBase = (TileMachineBase) context.getServerHandler().player.world.getTileEntity(pos);
-		SlotConfiguration.SlotConfigHolder holder = legacyMachineBase.slotConfiguration.getSlotDetails(slotID);
-		if(holder == null){
-			return;
-		}
-		holder.setInput(input);
-		holder.setOutput(output);
-		holder.setfilter(filter);
-
-		//Syncs back to the client
-		PacketSlotSync packetSlotSync = new PacketSlotSync(pos, legacyMachineBase.slotConfiguration);
-		NetworkManager.sendToAll(packetSlotSync);
+	public void processData() {
+		//TODO 1.13 packets
+//		TileMachineBase legacyMachineBase = (TileMachineBase) context.getServerHandler().player.world.getTileEntity(pos);
+//		SlotConfiguration.SlotConfigHolder holder = legacyMachineBase.slotConfiguration.getSlotDetails(slotID);
+//		if(holder == null){
+//			return;
+//		}
+//		holder.setInput(input);
+//		holder.setOutput(output);
+//		holder.setfilter(filter);
+//
+//		//Syncs back to the client
+//		PacketSlotSync packetSlotSync = new PacketSlotSync(pos, legacyMachineBase.slotConfiguration);
+//		NetworkManager.sendToAll(packetSlotSync);
 	}
 }

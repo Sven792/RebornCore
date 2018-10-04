@@ -29,12 +29,15 @@
 package reborncore.common.powerSystem.forge;
 
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.common.capabilities.OptionalCapabilityInstance;
 import net.minecraftforge.energy.IEnergyStorage;
 import reborncore.common.powerSystem.TilePowerAcceptor;
 
 import javax.annotation.Nullable;
 
 public class ForgePowerManager implements IEnergyStorage {
+
+	public final OptionalCapabilityInstance<IEnergyStorage> holder = OptionalCapabilityInstance.of(() -> this);
 
 	TilePowerAcceptor acceptor;
 	@Nullable

@@ -34,6 +34,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fluids.FluidTank;
+import net.minecraftforge.fml.client.config.GuiButtonExt;
 import reborncore.client.RenderUtil;
 
 import java.util.ArrayList;
@@ -51,8 +52,8 @@ public class GuiBuilder {
 	}
 
 	public void drawDefaultBackground(GuiScreen gui, int x, int y, int width, int height) {
-		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocation);
+		GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+		Minecraft.getInstance().getTextureManager().bindTexture(resourceLocation);
 		gui.drawTexturedModalRect(x, y, 0, 0, width / 2, height / 2);
 		gui.drawTexturedModalRect(x + width / 2, y, 150 - width / 2, 0, width / 2, height / 2);
 		gui.drawTexturedModalRect(x, y + height / 2, 0, 150 - height / 2, width / 2, height / 2);
@@ -60,7 +61,7 @@ public class GuiBuilder {
 	}
 
 	public void drawEnergyBar(GuiScreen gui, int x, int y, int height, int energyStored, int maxEnergyStored, int mouseX, int mouseY, String powerType) {
-		Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocation);
+		Minecraft.getInstance().getTextureManager().bindTexture(resourceLocation);
 
 		gui.drawTexturedModalRect(x, y, 0, 150, 14, height);
 		gui.drawTexturedModalRect(x, y + height - 1, 0, 255, 14, 1);
@@ -75,7 +76,7 @@ public class GuiBuilder {
 	}
 
 	public void drawPlayerSlots(GuiScreen gui, int posX, int posY, boolean center) {
-		Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocation);
+		Minecraft.getInstance().getTextureManager().bindTexture(resourceLocation);
 
 		if (center) {
 			posX -= 81;
@@ -93,7 +94,7 @@ public class GuiBuilder {
 	}
 
 	public void drawSlot(GuiScreen gui, int posX, int posY) {
-		Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocation);
+		Minecraft.getInstance().getTextureManager().bindTexture(resourceLocation);
 		gui.drawTexturedModalRect(posX, posY, 150, 0, 18, 18);
 	}
 
@@ -144,12 +145,12 @@ public class GuiBuilder {
 	}
 
 	public void drawInfoButton(int buttonID, int x, int y, List<GuiButton> buttonList) {
-		buttonList.add(new GuiButton(0, x, y, 20, 20, "i"));
+		buttonList.add(new GuiButtonExt(0, x, y, 20, 20, "i"));
 	}
 
 	public void drawInfo(GuiScreen gui, int x, int y, int height, int width, boolean draw) {
 		if (draw) {
-			Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocation);
+			Minecraft.getInstance().getTextureManager().bindTexture(resourceLocation);
 			gui.drawTexturedModalRect(x, y, 0, 0, width / 2, height / 2);
 			gui.drawTexturedModalRect(x + width / 2, y, 150 - width / 2, 0, width / 2, height / 2);
 			gui.drawTexturedModalRect(x, y + height / 2, 0, 150 - height / 2, width / 2, height / 2);

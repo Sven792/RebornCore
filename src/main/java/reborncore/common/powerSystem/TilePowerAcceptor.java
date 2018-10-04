@@ -33,9 +33,11 @@ import net.minecraft.init.Particles;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.OptionalCapabilityInstance;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import reborncore.api.IListInfoProvider;
@@ -65,11 +67,13 @@ public abstract class TilePowerAcceptor extends TileMachineBase implements
 	public double powerLastTick;
 	public boolean checkOverfill = true; //Set to flase to disable the overfill check.
 
-	public TilePowerAcceptor() {
+	public TilePowerAcceptor(TileEntityType tileEntityType) {
+		super(tileEntityType);
 		checkTier();
 	}
 
-	public TilePowerAcceptor(EnumPowerTier tier) {
+	public TilePowerAcceptor(EnumPowerTier tier, TileEntityType tileEntityType) {
+		super(tileEntityType);
 		checkTier();
 	}
 
@@ -111,8 +115,8 @@ public abstract class TilePowerAcceptor extends TileMachineBase implements
 		if (batteryStack.isEmpty()) {
 			return;
 		}
-		if (batteryStack.hasCapability(CapabilityEnergy.ENERGY, null)) {
-			IEnergyStorage batteryEnergy = batteryStack.getCapability(CapabilityEnergy.ENERGY, null);
+		if (batteryStack.getCapability(CapabilityEnergy.ENERGY, null).isPresent()) {
+			IEnergyStorage batteryEnergy = batteryStack.getCapability(CapabilityEnergy.ENERGY, null).orElse(null);
 			if (batteryEnergy.getEnergyStored() > 0) {
 				int extracted = batteryEnergy.extractEnergy((int) (chargeEnergy * RebornCoreConfig.euPerFU), false);
 				addEnergy( extracted / RebornCoreConfig.euPerFU);
@@ -242,22 +246,15 @@ public abstract class TilePowerAcceptor extends TileMachineBase implements
 		extraPowerInput = 0;
 	}
 	
-	@Override
-	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
-		if (capability == CapabilityEnergy.ENERGY && (canAcceptEnergy(facing) || canProvideEnergy(facing))) {
-				return true;
-		}
-		return super.hasCapability(capability, facing);
-	}
 
 	@Override
-	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+	public <T> OptionalCapabilityInstance<T> getCapability(Capability<T> capability, EnumFacing facing) {
 		if (capability == CapabilityEnergy.ENERGY && (canAcceptEnergy(facing) || canProvideEnergy(facing))) {
 			if (forgePowerManager == null) {
 				forgePowerManager = new ForgePowerManager(this, facing);
 			}
 			forgePowerManager.setFacing(facing);
-			return CapabilityEnergy.ENERGY.cast(forgePowerManager);
+			return forgePowerManager.holder.cast();
 		}
 		return super.getCapability(capability, facing);
 	}
@@ -274,11 +271,12 @@ public abstract class TilePowerAcceptor extends TileMachineBase implements
 	}
 	
 	// TileEntity
-	@Override
-	public void invalidate() {
-		super.invalidate();
-		onChunkUnload();
-	}
+	//TODO 1.13 missing tile patches
+//	@Override
+//	public void invalidate() {
+//		super.invalidate();
+//		onChunkUnload();
+//	}
 	
 	// IEnergyInterfaceTile
 	@Override

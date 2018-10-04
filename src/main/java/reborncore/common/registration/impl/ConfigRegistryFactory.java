@@ -34,10 +34,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.event.FMLStateEvent;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.commons.lang3.tuple.Pair;
 import reborncore.RebornCore;
 import reborncore.common.RebornCoreConfig;
@@ -258,8 +257,8 @@ public class ConfigRegistryFactory implements IRegistryFactory {
 	}
 
 	public boolean shouldReset(Property property, ConfigRegistry configRegistry, String modID){
-		NBTTagCompound propertyTag = configVersionTag.getCompoundTag(getPropertyString(configRegistry, modID));
-		propertyTag.setInteger("version", 0);
+		NBTTagCompound propertyTag = configVersionTag.getCompound(getPropertyString(configRegistry, modID));
+		propertyTag.setInt("version", 0);
 		propertyTag.setString("comment", configRegistry.comment());
 		propertyTag.setString("key", configRegistry.key());
 		propertyTag.setString("config", configRegistry.config());
@@ -304,7 +303,7 @@ public class ConfigRegistryFactory implements IRegistryFactory {
 	}
 
 	@Override
-	public Class<? extends FMLStateEvent> getProcessSate() {
+	public Class<? extends Event> getProcessSate() {
 		return RegistryConstructionEvent.class;
 	}
 

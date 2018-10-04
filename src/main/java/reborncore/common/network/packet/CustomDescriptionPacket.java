@@ -32,7 +32,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import reborncore.RebornCore;
 import reborncore.common.network.ExtendedPacketBuffer;
 import reborncore.common.network.INetworkPacket;
@@ -54,7 +53,7 @@ public class CustomDescriptionPacket implements INetworkPacket {
 
 	public CustomDescriptionPacket(TileEntity tileEntity) {
 		this.blockPos = tileEntity.getPos();
-		this.nbt = tileEntity.writeToNBT(new NBTTagCompound());
+		this.nbt = tileEntity.write(new NBTTagCompound());
 	}
 
 	@Override
@@ -70,7 +69,7 @@ public class CustomDescriptionPacket implements INetworkPacket {
 	}
 
 	@Override
-	public void processData(MessageContext context) {
+	public void processData() {
 		if (blockPos == null || nbt == null) {
 			return;
 		}
@@ -78,7 +77,7 @@ public class CustomDescriptionPacket implements INetworkPacket {
 		if (world.isBlockLoaded(blockPos)) {
 			TileEntity tileentity = world.getTileEntity(blockPos);
 			if (tileentity != null && nbt != null) {
-				tileentity.readFromNBT(nbt);
+				tileentity.read(nbt);
 			}
 		}
 	}

@@ -86,7 +86,7 @@ public class RebornCore {
 		}
 		MinecraftForge.EVENT_BUS.register(ConfigRegistryFactory.class);
 		ConfigRegistryFactory.setConfigDir(configDir);
-		RegistrationManager.init(event);
+		RegistrationManager.init();
 		RegistrationManager.load(new RegistryConstructionEvent());
 		ConfigRegistryFactory.saveAll();
 		PowerSystem.priorityConfig = (new File(configDir, "energy_priority.json"));

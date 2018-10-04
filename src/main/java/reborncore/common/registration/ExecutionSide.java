@@ -38,12 +38,13 @@ public enum ExecutionSide {
 		if (this == COMMON) {
 			return true;
 		}
-		if (FMLLaunchHandler.side() == Side.CLIENT && this == CLIENT) {
-			return true;
-		}
-		if (FMLLaunchHandler.side() == Side.SERVER && this == SERVER) {
-			return true;
-		}
+		//TODO 1.13 side meme
+//		if (FMLLaunchHandler.side() == Side.CLIENT && this == CLIENT) {
+//			return true;
+//		}
+//		if (FMLLaunchHandler.side() == Side.SERVER && this == SERVER) {
+//			return true;
+//		}
 		return false;
 	}
 }

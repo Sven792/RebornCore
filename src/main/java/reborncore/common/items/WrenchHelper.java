@@ -65,7 +65,7 @@ public class WrenchHelper {
 					}
 
 					boolean dropContents = true;
-					Block block = tileEntity.getBlockType();
+					Block block = tileEntity.getWorld().getBlockState(tileEntity.getPos()).getBlock();
 					if(block instanceof BaseTileBlock){
 						ItemStack tileDrop = ((BaseTileBlock) block).getDropWithContents(worldIn, pos, drop).orElse(ItemStack.EMPTY);
 						if(!tileDrop.isEmpty()){
@@ -90,7 +90,7 @@ public class WrenchHelper {
 				}
 			} 
 			else {
-				worldIn.getBlockState(pos).getBlock().rotateBlock(worldIn, pos, side);
+				worldIn.getBlockState(pos).getBlock().rotateBlock(worldIn.getBlockState(pos), worldIn, pos, side);
 			}
 			return true;
 		}

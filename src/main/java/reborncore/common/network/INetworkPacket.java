@@ -37,6 +37,6 @@ public interface INetworkPacket {
 
 	void readData(ExtendedPacketBuffer buffer) throws IOException;
 
-	void processData(MessageContext context);
+	void processData();
 
 }

@@ -33,6 +33,7 @@ import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
+import net.minecraftforge.common.capabilities.OptionalCapabilityInstance;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -62,9 +63,10 @@ public class PoweredItemCapabilityProvider implements ICapabilitySerializable<NB
 	
 	@Nullable
 	@Override
-	public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
+	public <T> OptionalCapabilityInstance<T> getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
 		if (energyStorage != null && capability == CapabilityEnergy.ENERGY) {
-			return CapabilityEnergy.ENERGY.cast(energyStorage);
+			//TODO 1.13
+			//return CapabilityEnergy.ENERGY.cast(energyStorage);
 		}
 		return null;
 	}

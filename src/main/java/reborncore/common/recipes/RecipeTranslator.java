@@ -44,14 +44,16 @@ public class RecipeTranslator {
 	ItemStack getStackFromObject(Object object) {
 		if (object instanceof ItemStack) {
 			return (ItemStack) object;
-		} else if (object instanceof String) {
-			String oreName = (String) object;
-			if (OreDictionary.doesOreNameExist(oreName)) {
-				NonNullList<ItemStack> list = OreDictionary.getOres(oreName);
-				return list.get(0).copy(); //The first entry
-			}
-
 		}
+		//TODO 1.13 and tags
+//		} else if (object instanceof String) {
+//			String oreName = (String) object;
+//			if (OreDictionary.doesOreNameExist(oreName)) {
+//				NonNullList<ItemStack> list = OreDictionary.getOres(oreName);
+//				return list.get(0).copy(); //The first entry
+//			}
+//
+//		}
 		return ItemStack.EMPTY;
 	}
 

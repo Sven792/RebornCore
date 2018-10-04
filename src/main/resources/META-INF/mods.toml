@@ -3,6 +3,6 @@ loaderVersion="[13,)"
 
 [[mods]]
     modId="reborncore"
-    version="${version}"
+    version="1.0"
     displayName="Reborn Core"
     description='Powering Team Reborn, Reborn Core is a lib mod that adds no content.'

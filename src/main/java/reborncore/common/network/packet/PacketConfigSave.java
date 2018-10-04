@@ -30,7 +30,6 @@ package reborncore.common.network.packet;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import reborncore.common.network.ExtendedPacketBuffer;
 import reborncore.common.network.INetworkPacket;
 import reborncore.common.network.NetworkManager;
@@ -69,12 +68,13 @@ public class PacketConfigSave implements INetworkPacket {
 	}
 
 	@Override
-	public void processData(MessageContext context) {
-		TileMachineBase legacyMachineBase = (TileMachineBase) context.getServerHandler().player.world.getTileEntity(pos);
-		legacyMachineBase.slotConfiguration.deserializeNBT(tagCompound);
-		legacyMachineBase.markDirty();
-
-		PacketSlotSync packetSlotSync = new PacketSlotSync(pos, legacyMachineBase.slotConfiguration);
-		NetworkManager.sendToWorld(packetSlotSync, legacyMachineBase.getWorld());
+	public void processData() {
+		//TODO 1.13 packets
+//		TileMachineBase legacyMachineBase = (TileMachineBase) context.getServerHandler().player.world.getTileEntity(pos);
+//		legacyMachineBase.slotConfiguration.deserializeNBT(tagCompound);
+//		legacyMachineBase.markDirty();
+//
+//		PacketSlotSync packetSlotSync = new PacketSlotSync(pos, legacyMachineBase.slotConfiguration);
+//		NetworkManager.sendToWorld(packetSlotSync, legacyMachineBase.getWorld());
 	}
 }

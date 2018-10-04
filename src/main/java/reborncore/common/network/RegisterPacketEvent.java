@@ -31,6 +31,7 @@ package reborncore.common.network;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 import java.lang.reflect.Constructor;
 
@@ -54,10 +55,10 @@ public class RegisterPacketEvent extends Event {
 	}
 
 	public static int getNextID(Class<? extends INetworkPacket> packet) {
-		SimpleNetworkWrapper wrapper = NetworkManager.getWrapperForPacket(packet);
-		if(wrapper == null){
-			return 0;
-		}
-		return NetworkManager.getNextIDForWrapper(wrapper);
+//		SimpleChannel channel = NetworkManager.getWrapperForPacket(packet);
+//		if(wrapper == null){
+//			return 0;
+//		}
+		return NetworkManager.getNextID();
 	}
 }

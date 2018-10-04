@@ -30,16 +30,15 @@ package reborncore.common.registration;
 
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.ModContainer;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.language.ModFileScanData;
+import org.objectweb.asm.Type;
 import reborncore.RebornCore;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -50,22 +49,29 @@ public class RegistrationManager {
 	static List<IRegistryFactory> factoryList = new ArrayList<>();
 	static List<Class> registryClasses = new ArrayList<>();
 
-	public static void init(FMLPreInitializationEvent event) {
+	public static void init() {
 		long start = System.currentTimeMillis();
-		ASMDataTable asmDataTable = event.getAsmData();
-		loadFactorys(asmDataTable);
 
-		Set<ASMDataTable.ASMData> asmDataSet = asmDataTable.getAll(RebornRegister.class.getName());
-		List<ASMDataTable.ASMData> asmDataList = new ArrayList<>(asmDataSet);
-		asmDataList.sort(Comparator.comparingInt(RegistrationManager::getPriority));
-		for (ASMDataTable.ASMData data : asmDataList) {
+		List<ModFileScanData> scanData = ModList.get().getAllScanData();
+		loadFactorys(scanData);
+
+
+		List<ModFileScanData.AnnotationData> registryData = scanData.stream()
+				.map(ModFileScanData::getAnnotations)
+				.flatMap(Collection::stream).
+				filter(a -> Objects.equals(a.getClassType(), Type.getType(RebornRegister.class)))
+				.collect(Collectors.toList());
+
+		registryData.sort(Comparator.comparingInt(RegistrationManager::getPriority));
+
+		for (ModFileScanData.AnnotationData data : registryData) {
 			try {
-				Class clazz = Class.forName(data.getClassName());
+				Class clazz = Class.forName(data.getClassType().getClassName());
 				if(isEarlyReg(data)){
 					handleClass(clazz, null);
 					continue;
 				}
-				registryClasses.add(clazz);
+				registryClasses.add(Class.forName(data.getClassType().getClassName()));
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -77,23 +83,24 @@ public class RegistrationManager {
 		RebornCore.LOGGER.info("Pre loaded registries in" + (System.currentTimeMillis() - start) + "ms");
 	}
 
-	private static int getPriority(ASMDataTable.ASMData asmData){
-		if(asmData.getAnnotationInfo().containsKey("priority")){
-			return -(int) asmData.getAnnotationInfo().get("priority");
+	private static int getPriority(ModFileScanData.AnnotationData annotationData){
+		if(annotationData.getAnnotationData().containsKey("priority")){
+			return -(int) annotationData.getAnnotationData().get("priority");
 		}
 		return 0;
 	}
 
-	private static boolean isEarlyReg(ASMDataTable.ASMData asmData){
-		if(asmData.getAnnotationInfo().containsKey("earlyReg")){
-			return (boolean) asmData.getAnnotationInfo().get("earlyReg");
+	private static boolean isEarlyReg(ModFileScanData.AnnotationData annotationData){
+		if(annotationData.getAnnotationData().containsKey("earlyReg")){
+			return (boolean) annotationData.getAnnotationData().get("earlyReg");
 		}
 		return false;
 	}
 
 	public static void load(Event event) {
 		long start = System.currentTimeMillis();
-		final ModContainer activeMod = Loader.instance().activeModContainer();
+		//TODO 1.13 and active mod container
+		final ModContainer activeMod = null;
 
 		List<IRegistryFactory> factoryList = getFactorysForSate(event.getClass());
 		if (!factoryList.isEmpty()) {
@@ -162,18 +169,24 @@ public class RegistrationManager {
 		return null;
 	}
 
-	private static void loadFactorys(ModFileScanData dataTable) {
-		Set<ASMDataTable.ASMData> asmDataSet = dataTable.getAll(IRegistryFactory.RegistryFactory.class.getName());
-		for (ASMDataTable.ASMData data : asmDataSet) {
+	private static void loadFactorys(List<ModFileScanData> scanData) {
+		List<ModFileScanData.AnnotationData> dataSet = scanData.stream()
+				.map(ModFileScanData::getAnnotations)
+				.flatMap(Collection::stream).
+						filter(a -> Objects.equals(a.getClassType(), Type.getType(IRegistryFactory.RegistryFactory.class)))
+				.collect(Collectors.toList());
+
+		for (ModFileScanData.AnnotationData data : dataSet) {
 			try {
-				Class clazz = Class.forName(data.getClassName());
+				Class clazz = Class.forName(data.getClassType().getClassName());
 				IRegistryFactory.RegistryFactory registryFactory = (IRegistryFactory.RegistryFactory) getAnnoation(clazz.getAnnotations(), IRegistryFactory.RegistryFactory.class);
 				if (!registryFactory.side().canExcetue()) {
 					continue;
 				}
-				if (!Loader.isModLoaded(registryFactory.modID())) {
-					continue;
-				}
+				//TODO 1.13 and new mod loader
+//				if (!Loader.isModLoaded(registryFactory.modID())) {
+//					continue;
+//				}
 				Object object = clazz.newInstance();
 				if (object instanceof IRegistryFactory) {
 					IRegistryFactory factory = (IRegistryFactory) object;
@@ -186,16 +199,17 @@ public class RegistrationManager {
 	}
 
 	private static void setActiveMod(String modID) {
-		for (ModContainer modContainer : Loader.instance().getActiveModList()) {
-			if (modContainer.getModId().equals(modID)) {
-				setActiveModContainer(modContainer);
-				break;
-			}
-		}
+		//TODO 1.13 mod loader and active mods
+//		for (ModContainer modContainer : Loader.instance().getActiveModList()) {
+//			if (modContainer.getModId().equals(modID)) {
+//				setActiveModContainer(modContainer);
+//				break;
+//			}
+//		}
 	}
 
 	private static void setActiveModContainer(ModContainer container) {
-		Loader.instance().setActiveModContainer(container);
+		//Loader.instance().setActiveModContainer(container);
 	}
 
 }

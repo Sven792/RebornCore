@@ -29,7 +29,6 @@
 package reborncore.common.network.packet;
 
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import reborncore.common.network.ExtendedPacketBuffer;
 import reborncore.common.network.INetworkPacket;
 import reborncore.common.network.NetworkManager;
@@ -70,17 +69,18 @@ public class PacketFluidIOSave implements INetworkPacket {
 	}
 
 	@Override
-	public void processData(MessageContext context) {
-		TileMachineBase legacyMachineBase = (TileMachineBase) context.getServerHandler().player.world.getTileEntity(pos);
-		FluidConfiguration config = legacyMachineBase.fluidConfiguration;
-		if (config == null) {
-			return;
-		}
-		config.setInput(input);
-		config.setOutput(output);
-
-		//Syncs back to the client
-		PacketFluidConfigSync packetFluidConfigSync = new PacketFluidConfigSync(pos, legacyMachineBase.fluidConfiguration);
-		NetworkManager.sendToWorld(packetFluidConfigSync, legacyMachineBase.getWorld());
+	public void processData() {
+		//TODO 1.13 packets weee
+//		TileMachineBase legacyMachineBase = (TileMachineBase) context.getServerHandler().player.world.getTileEntity(pos);
+//		FluidConfiguration config = legacyMachineBase.fluidConfiguration;
+//		if (config == null) {
+//			return;
+//		}
+//		config.setInput(input);
+//		config.setOutput(output);
+//
+//		//Syncs back to the client
+//		PacketFluidConfigSync packetFluidConfigSync = new PacketFluidConfigSync(pos, legacyMachineBase.fluidConfiguration);
+//		NetworkManager.sendToWorld(packetFluidConfigSync, legacyMachineBase.getWorld());
 	}
 }
